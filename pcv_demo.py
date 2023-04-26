@@ -1,3 +1,4 @@
+#!./venv/bin/python
 from plantcv import plantcv as pcv
 from pathlib import Path
 import argparse

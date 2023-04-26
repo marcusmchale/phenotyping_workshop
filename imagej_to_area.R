@@ -1,3 +1,5 @@
+#!/usr/bin/Rscript
+
 # Take ImageJ output and format to table with labels and area in mm2 
 library(dplyr)
 library(purrr)
@@ -7,7 +9,7 @@ library(tibble)
 imagej_out <- file.path('sample_data/ij.txt') # tsv from ImageJ
 sample_details <- file.path("sample_data/samples.tsv")
 discs_per_tank <- rep(48, 3)
-output <- file.path('sample_data/area.tsv')
+output <- file.path('output/area.tsv')
 
 # Import the data saved from imagej analysis
 size_df <-read.table(
