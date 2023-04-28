@@ -6,20 +6,20 @@ library(purrr)
 library(tibble)
 
 # Change these to match your paths to the saved data and/or layout
-imagej_out <- file.path('sample_data/ij.txt') # tsv from ImageJ
-sample_details <- file.path("sample_data/samples.tsv")
+imagej_out <- file.path('Results.csv') # tsv from ImageJ
+sample_details <- file.path("id.csv")
 discs_per_tank <- rep(48, 3)
 output <- file.path('output/area.tsv')
 
 # Import the data saved from imagej analysis
 size_df <-read.table(
   imagej_out,
-  sep="\t",
-  header=F,
+  sep=",",
+  header=T,
   stringsAsFactors = F,
-  colClasses = c("character","character","numeric","numeric","integer"),
-  col.names = c("no","pic","area","perc_area","slice")
-) %>%
+  colClasses = c("character","numeric","numeric","integer","numeric"),
+  col.names = c("pic","area","perc_area","slice","mm")
+)%>%
   mutate(
     tank = as.integer(substr(pic,nchar(pic),nchar(pic))),
     well = as.integer(unlist(accumulate2(
@@ -33,15 +33,18 @@ size_df <-read.table(
       else
         { .x}
     ))),
-    time = as.POSIXct(strptime(substr(pic,(nchar(pic)-20),(nchar(pic)-5)),format="%Y-%m-%d_%Hh%M")),
+    time = as.POSIXct(strptime(substr(pic,(nchar(pic)-16),(nchar(pic)-4)),format="%Y-%m-%d_%H")),
     area = area * (100-perc_area) / 100
+    # on some systems imagej reports perc_area as the selected, on others it is the unselected
+    # change this accordingly
+    # area = area * perc_area / 100
   ) %>%
     select(tank, well, time, area)
 
 # Import sample details
 sample_list<-read.table(
   sample_details,
-  sep="\t",
+  sep=",",
   header=T,
   stringsAsFactors = F,
   colClasses = c("integer","integer","character")
@@ -52,6 +55,4 @@ size_df <- size_df %>%
   left_join(sample_list, by=c('tank','well'))
 
 write.table(size_df, output, sep='\t', row.names = F)
-
-
 
