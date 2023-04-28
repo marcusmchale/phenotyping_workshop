@@ -23,6 +23,18 @@ area <- read.table(
     !time < as.POSIXct("2023-04-26 13:00:00 ")
   )
 
+dir.create("output/area_plots")
+plot_area <- function(s) {
+  p <- ggplot(filter(area, strain==s), aes(x=time, y=area, colour=paste(tank,well))) +
+    geom_point() +
+    geom_smooth(method = "glm", formula = y~x,
+                      method.args = list(family = gaussian(link = 'log'))) +
+    expand_limits(y = 0)
+  ggsave(paste0("output/area_plots/", s, ".png"), p)
+}
+lapply(unique(area$strain), plot_area)
+
+
 dir.create("output/rgr_plots")
 plot_rgr_fit <- function(s) {
   p <- ggplot(filter(area, strain==s), aes(x=time, y=log(area), colour=paste(tank,well))) +
